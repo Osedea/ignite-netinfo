@@ -1,52 +1,113 @@
 // Ignite CLI plugin for Netinfo
 // ----------------------------------------------------------------------------
 
-const NPM_MODULE_NAME = 'react-native-MODULENAME'
-const NPM_MODULE_VERSION = '0.0.1'
+const NPM_MODULE_NAME = '@react-native-community/netinfo'
 
-// const PLUGIN_PATH = __dirname
-// const APP_PATH = process.cwd()
-
+const PLUGIN_PATH = __dirname
 
 const add = async function (toolbox) {
-  // Learn more about toolbox: https://infinitered.github.io/gluegun/#/toolbox-api.md
-  const { ignite } = toolbox
+    const { ignite } = toolbox
+    let APP_PATH = process.cwd()
 
-  // install an NPM module and link it
-  await ignite.addModule(NPM_MODULE_NAME, { link: true, version: NPM_MODULE_VERSION })
+    if (process.env.NODE_ENV === 'ignite-test') {
+        APP_PATH = toolbox.test.APP_PATH;
+    }
 
-  // Example of copying templates/Netinfo to app/ignite-netinfo
-  // if (!toolbox.filesystem.exists(`${APP_PATH}/app/ignite-netinfo`)) {
-  //   toolbox.filesystem.copy(`${PLUGIN_PATH}/templates/ignite-netinfo`, `${APP_PATH}/app/ignite-netinfo`)
-  // }
+    const appProps = require(`${APP_PATH}/ignite/ignite.json`)
+    const packageJSON = require(`${APP_PATH}/package.json`)
 
-  // Example of patching a file
-  // ignite.patchInFile(`${APP_PATH}/app/config/app-config.js`, {
-  //   insert: `import '../ignite-netinfo/ignite-netinfo'\n`,
-  //   before: `export default {`
-  // })
+    if (packageJSON.dependencies['react-native'] >= '0.60.0') {
+        await ignite.addModule(NPM_MODULE_NAME)
+    } else {
+        await ignite.addModule(NPM_MODULE_NAME, { link: true })
+    }
+
+    await toolbox.system.run('pod install', { cwd: `${APP_PATH}/ios` })
+
+    if (!toolbox.filesystem.exists(`${APP_PATH}/app/helpers/network`)) {
+        await toolbox.template.generate({
+            template: `${PLUGIN_PATH}/templates/netinfo-helper.js.ejs`,
+            target: `app/helpers/network.js`,
+            props: appProps,
+        })
+    }
+
+    if (!toolbox.filesystem.exists(`${APP_PATH}/app/services/Network`)) {
+        let wantsReduxService = false;
+
+        if (appProps.boilerplate !== "osedea-react-native-boilerplate") {
+            wantsReduxService = await toolbox.prompt.confirm('Do you want the Network redux service?');
+        } else {
+            wantsReduxService = true;
+        }
+
+        if (wantsReduxService) {
+            toolbox.filesystem.copy(`${PLUGIN_PATH}/templates/redux`, `${APP_PATH}/app/services/Network`);
+
+            if (appProps.boilerplate === "osedea-react-native-boilerplate") {
+                ignite.patchInFile(`${APP_PATH}/app/reducers.tsx`, {
+                    insert: `import NetworkReducer from '${appProps.appName}/app/services/Network/reducer';\n`,
+                    before: `export default combineReducers({`
+                });
+                ignite.patchInFile(`${APP_PATH}/app/reducers.tsx`, {
+                    insert: `    Network: NetworkReducer.reducer,\n`,
+                    after: `export default combineReducers({`
+                });
+                ignite.patchInFile(`${APP_PATH}/app/index.tsx`, {
+                    insert: `import { setupConnectivityChangeHandling } from './helpers/network';\n\nsetupConnectivityChangeHandling();\n`,
+                    before: `class Root extends Component {`
+                });
+                ignite.patchInFile(`${APP_PATH}/android/build.gradle`, {
+                    insert: `        androidXCore = "1.0.2"`,
+                    after: `targetSdkVersion = 28`
+                });
+            }
+        }
+    }
 }
 
 /**
  * Remove yourself from the project.
  */
 const remove = async function (toolbox) {
-  // Learn more about toolbox: https://infinitered.github.io/gluegun/#/toolbox-api.md
-  const { ignite } = toolbox
+    // Learn more about toolbox: https://infinitered.github.io/gluegun/#/toolbox-api.md
+    const { ignite } = toolbox
+    let APP_PATH = process.cwd()
 
-  // remove the npm module and unlink it
-  await ignite.removeModule(NPM_MODULE_NAME, { unlink: true })
+    if (process.env.NODE_ENV === 'ignite-test') {
+        APP_PATH = toolbox.test.APP_PATH;
+    }
 
-  // Example of removing app/Netinfo folder
-  // const removeignite-netinfo = await toolbox.prompt.confirm(
-  //   'Do you want to remove app/ignite-netinfo?'
-  // )
-  // if (removeignite-netinfo) { toolbox.filesystem.remove(`${APP_PATH}/app/ignite-netinfo`) }
+    const appProps = require(`${APP_PATH}/ignite/ignite.json`)
+    const packageJSON = require(`${APP_PATH}/package.json`)
 
-  // Example of unpatching a file
-  // ignite.patchInFile(`${APP_PATH}/app/config/app-config.js`, {
-  //   delete: `import '../ignite-netinfo/ignite-netinfo'\n`
-  // )
+    if (packageJSON.dependencies['react-native'] >= '0.60.0') {
+        await ignite.removeModule(NPM_MODULE_NAME)
+    } else {
+        await ignite.removeModule(NPM_MODULE_NAME, { unlink: true })
+    }
+
+    await toolbox.system.run('pod install', { cwd: `${APP_PATH}/ios` })
+
+    const removeNetinfo = await toolbox.prompt.confirm(
+        'Do you want to remove app/helpers/network.js?'
+    )
+
+    if (removeNetinfo) {
+        toolbox.filesystem.remove(`${APP_PATH}/app/ignite-netinfo`);
+    }
+
+    if (appProps.boilerplate === "osedea-react-native-boilerplate") {
+        ignite.patchInFile(`${APP_PATH}/app/reducers.tsx`, {
+            delete: `import NetworkReducer from '${appProps.appName}/app/services/Network/reducer';\n`
+        });
+        ignite.patchInFile(`${APP_PATH}/app/reducers.tsx`, {
+            delete: `    Network: NetworkReducer.reducer,\n`
+        });
+        ignite.patchInFile(`${APP_PATH}/app/index.tsx`, {
+            delete: `import { setupConnectivityChangeHandling } from './helpers/network';\n\nsetupConnectivityChangeHandling();\n`,
+        });
+    }
 }
 
 // Required in all Ignite CLI plugins

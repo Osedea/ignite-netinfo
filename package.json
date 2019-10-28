@@ -11,7 +11,7 @@
   "scripts": {
     "lint": "standard",
     "format": "prettier --write \"{**/*.ts,**/*.js}\" --loglevel error && standard --fix",
-    "test": "ava",
+    "test": "export NODE_ENV='ignite-test' && ava",
     "watch": "ava --watch",
     "shipit": "np"
   },

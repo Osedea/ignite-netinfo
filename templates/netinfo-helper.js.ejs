@@ -1,0 +1,25 @@
+import NetInfo from "@react-native-community/netinfo";
+import { connectivityChanged } from '<%= props.appName %>/app/services/Network/thunks';
+import { resetMessage, setMessage } from '<%= props.appName %>/app/services/GlobalMessage/thunks';
+import { translate } from '<%= props.appName %>/app/translations';
+
+import { store } from '<%= props.appName %>/app/store';
+
+let hasConnection;
+
+export const handleCheckConnectivity = (connectionInfo) => {
+    hasConnection = connectionInfo.type !== 'none';
+    store.dispatch(connectivityChanged(hasConnection));
+    if (!hasConnection) {
+        store.dispatch(setMessage('error.noNetwork'));
+    } else {
+        store.dispatch(resetMessage());
+    }
+};
+
+export const setupConnectivityChangeHandling = () => {
+    NetInfo.addEventListener('connectionChange', handleCheckConnectivity);
+    NetInfo.getConnectionInfo().then((connectionInfo) => {
+        store.dispatch(connectivityChanged(connectionInfo.type !== 'none'));
+    });
+};
