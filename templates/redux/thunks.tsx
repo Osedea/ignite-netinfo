@@ -1,4 +1,4 @@
-import NetworkState from '../reducer';
+import NetworkState from './reducer';
 const { actions } = NetworkState;
 
 export const connectivityChanged = (connected: boolean) => (dispatch) =>

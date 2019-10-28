@@ -9,7 +9,6 @@ test('removes the proper npm module and runs pod install (RN >= 0.60.0)', async 
     const run = sinon.spy()
     const exists = sinon.spy()
     const remove = sinon.spy()
-    const generate = sinon.spy()
     const confirm = sinon.spy()
     const patchInFile = sinon.spy()
 
@@ -18,7 +17,6 @@ test('removes the proper npm module and runs pod install (RN >= 0.60.0)', async 
         ignite: { removeModule, patchInFile },
         system: { run },
         filesystem: { exists, remove },
-        template: { generate },
         prompt: { confirm },
         test: { APP_PATH }
     }
@@ -36,7 +34,6 @@ test('removes the proper npm module, unlinks and runs pod install (RN < 0.60.0)'
     const run = sinon.spy()
     const exists = sinon.spy()
     const remove = sinon.spy()
-    const generate = sinon.spy()
     const confirm = sinon.spy()
     const patchInFile = sinon.spy()
 
@@ -45,7 +42,6 @@ test('removes the proper npm module, unlinks and runs pod install (RN < 0.60.0)'
         ignite: { removeModule, patchInFile },
         system: { run },
         filesystem: { exists, remove },
-        template: { generate },
         prompt: { confirm },
         test: { APP_PATH }
     }

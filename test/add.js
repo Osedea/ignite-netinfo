@@ -26,7 +26,7 @@ test('adds the proper npm module and runs pod install (RN >= 0.60.0)', async t =
 
     await plugin.add(toolbox)
 
-    t.true(addModule.calledWith('@react-native-community/netinfo'))
+    t.deepEqual(addModule.getCalls()[0].args, ['@react-native-community/netinfo', { version: '4.4.0' }])
     t.deepEqual(run.getCalls()[0].args, ['pod install', { cwd: TEST_PATH }])
 })
 
@@ -54,6 +54,6 @@ test('adds the proper npm module, links and runs pod install (RN < 0.60.0)', asy
 
     await plugin.add(toolbox)
 
-    t.true(addModule.calledWith('@react-native-community/netinfo', { link: true }))
+    t.deepEqual(addModule.getCalls()[0].args, ['@react-native-community/netinfo', { version: '4.4.0', link: true }])
     t.deepEqual(run.getCalls()[0].args, ['pod install', { cwd: TEST_PATH }])
 })
