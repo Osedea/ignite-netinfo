@@ -1,10 +1,16 @@
-# My Plugin
+# Ignite Netinfo
 
-This is where you would put an intro to your plugin, and maybe a few examples of usage. 
+Adds the very necessary [@react-native-community/netinfo](https://github.com/react-native-community/react-native-netinfo) to your project!
 
-## Example
+## Adding Netinfo
 
-```js
-console.log("Hello World")
+```sh
+ignite add netinfo
+```
+
+## Removing Netinfo
+
+```sh
+ignite remove netinfo
 ```
 
