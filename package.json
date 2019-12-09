@@ -1,12 +1,11 @@
 {
   "name": "ignite-netinfo",
-  "description": "A description of your plugin.",
+  "description": "Add network status detection to your React Native app",
   "version": "0.1.1",
   "license": "MIT",
   "author": {
-    "name": "Your Name",
-    "email": "test@example.com",
-    "url": "https://example.com/path/to/your/plugin"
+    "name": "Adrien THIERY",
+    "email": "opensource@osedea.com"
   },
   "scripts": {
     "lint": "standard",
@@ -19,8 +18,8 @@
   "standard": {
     "parser": "babel-eslint"
   },
-  "url": "https://example.com/path/to/your/plugin",
-  "repository": "githuborg/reponame",
+  "url": "https://github.com/osedea/ignite-netinfo",
+  "repository": "osedea/ignite-netinfo",
   "devDependencies": {
     "ava": "^1.4.1",
     "babel-eslint": "^10.0.1",
