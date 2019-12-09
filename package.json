@@ -1,6 +1,7 @@
 {
   "name": "ignite-netinfo",
   "description": "Add network status detection to your React Native app",
+  "keywords": ["react-native", "ignite", "netinfo"],
   "version": "0.1.2",
   "license": "MIT",
   "author": {
